@@ -1,0 +1,1148 @@
+\documentclass[aspectratio=169, 10pt]{beamer}
+
+% --- Theme and Formatting ---
+\usetheme{Madrid}
+\usecolortheme{seahorse}
+\usefonttheme{serif}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{frametitle continuation}{}
+
+% --- Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepgfplotslibrary{fillbetween}
+\usetikzlibrary{shapes, arrows, positioning, calc, patterns}
+
+% --- Meta Data ---
+\title[Random Variables]{Random Variables: Discrete \& Continuous}
+\author{Sourav Karmakar}
+\date{}
+
+% Define a highlight color
+\definecolor{highlight}{RGB}{0, 102, 204}
+
+\begin{document}
+
+% --- Title Slide ---
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% --- Table of Contents ---
+\begin{frame}{Outline}
+    \tableofcontents
+\end{frame}
+
+% =========================================================================
+% SECTION 1: Random Variables
+% =========================================================================
+\section{Random Variables}
+\begin{frame}
+    \centering
+    \Huge \textcolor{highlight}{Chapter 1: Random Variables}
+\end{frame}
+
+\begin{frame}{Introduction to Random Variables}
+    \begin{block}{What is a Random Variable (RV)?}
+        A \textbf{Random Variable} is a function that maps the outcome of a random process (uncertain event) to a real number. It translates ``events'' into ``data''.
+    \end{block}
+    
+    \vspace{0.5cm}
+    \centering
+    % TikZ Diagram: Mapping Concept
+    \begin{tikzpicture}[node distance=2cm, auto]
+        % Sample Space
+        \node[ellipse, draw=blue, thick, minimum width=2.5cm, minimum height=3cm, label=above:Sample Space ($\Omega$)] (omega) {};
+        \node (h) at (-0.5, 0.5) {Head};
+        \node (t) at (-0.5, -0.5) {Tail};
+        
+        % Real Line
+        \draw[->, thick] (2, -1.5) -- (2, 1.5) node[above] {$\mathbb{R}$};
+        \foreach \y/\label in {-1/-1, 0/0, 1/1}
+            \draw (1.9, \y) -- (2.1, \y) node[right] {\label};
+            
+        % Arrows
+        \draw[->, red, thick, dashed] (h) to[bend left] node[midway, above] {$X=1$} (1.8, 1);
+        \draw[->, red, thick, dashed] (t) to[bend right] node[midway, below] {$X=0$} (1.8, 0);
+    \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Types of Random Variables}
+    \begin{columns}
+        \column{0.47\textwidth}
+        \textbf{Discrete Random Variable}
+        \begin{itemize}
+            \item \textbf{Definition:} Takes on a countable number of distinct values (``jumps'').
+            \item \textbf{Daily Life Example:} Number of students present in a class (you can't have 2.5 students).
+            \item \textbf{Industry Example:} Number of defective items in a batch of 100 manufactured parts.
+        \end{itemize}
+        
+        \column{0.47\textwidth}
+        \textbf{Continuous Random Variable}
+        \begin{itemize}
+            \item \textbf{Definition:} Takes on an infinite number of values within an interval (``smooth'').
+            \item \textbf{Daily Life Example:} The exact time it takes to commute to work (e.g., 25.432 minutes).
+            \item \textbf{Industry Example:} The exact weight of a package being shipped (e.g., 10.54 kg).
+        \end{itemize}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Numerical Example 1: The ``Dice Sum''}
+    \textbf{Scenario:} You roll two fair 6-sided dice. Let $X$ be the random variable representing the \textbf{sum} of the two dice.
+    
+    \vspace{0.3cm}
+    \textbf{Task:} List the possible values for $X$.
+    \pause
+    \begin{itemize}
+        \item Minimum sum: $1+1 = 2$
+        \item Maximum sum: $6+6 = 12$
+        \item Range of $X$: $\{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12\}$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Numerical Example 2: Defective Widgets}
+    \textbf{Scenario:} A factory produces light bulbs. You pick 3 bulbs at random to test. Let $X$ be the \textbf{number of defective bulbs} found.
+    
+    \vspace{0.3cm}
+    \textbf{Task:} List possible values.
+    \pause
+    \begin{itemize}
+        \item All bulbs work $\rightarrow X = 0$
+        \item One is broken $\rightarrow X = 1$
+        \item Two are broken $\rightarrow X = 2$
+        \item All three broken $\rightarrow X = 3$
+    \end{itemize}
+    \textbf{Sample Space Mapping:} $\{GGG\} \to 0$, $\{BGG, GBG, GGB\} \to 1$, etc.
+\end{frame}
+
+\begin{frame}{Quick Check}
+    \centering
+    \Large \textcolor{highlight}{Quick Check: Random Variables}
+\end{frame}
+
+\begin{frame}{Quiz Q1: Discrete or Continuous?}
+    \textbf{Q1:} Which of the following variables is Discrete?
+    
+    \vspace{0.3cm}
+    A) The time it takes for a website to load. \\
+    B) The number of clicks on an advertisement. \\
+    C) The temperature of the server room. \\
+    D) The height of a user.
+    
+    \pause
+    \vspace{0.3cm}
+    \textbf{Answer: B) The number of clicks}
+    Clicks are countable integers (0, 1, 2...). Time, temperature, and height are continuous.
+\end{frame}
+
+% =========================================================================
+% SECTION 2: PMF, PDF and CDF
+% =========================================================================
+\section{Distribution Functions: PMF \& PDF}
+\begin{frame}
+    \centering
+    \Huge \textcolor{highlight}{Chapter 2: PMF, PDF and CDF}
+\end{frame}
+
+\begin{frame}{Transition: Discrete to Continuous (Histograms to Curves)}
+    Imagine measuring the height of 10,000 people.
+    \begin{itemize}
+        \item As we increase the precision of our measurement (bins get narrower), the histogram approaches a smooth curve.
+        \item In the limit (infinite precision), this curve becomes the \textbf{Probability Density Function (PDF)}.
+    \end{itemize}
+
+    \vspace{0.2cm}
+    \centering
+    \begin{tikzpicture}[scale=0.55]
+        % Plot 1: Coarse Histogram
+        \begin{axis}[
+            at={(0,0)}, width=5cm, height=5cm,
+            ybar interval, xtick=\empty, ytick=\empty,
+            title={Coarse (Nearest 5cm)},
+            axis lines=left, ymin=0
+        ]
+            \addplot[fill=blue!30] coordinates {(0,2) (1,5) (2,8) (3,5) (4,2) (5,0)};
+        \end{axis}
+        
+        % Plot 2: Fine Histogram
+        \begin{axis}[
+            at={(6cm,0)}, width=5cm, height=5cm,
+            ybar interval, xtick=\empty, ytick=\empty,
+            title={Fine (Nearest 1mm)},
+            axis lines=left, ymin=0
+        ]
+            \addplot[fill=blue!50] coordinates {
+                (0,1) (1,2) (2,3) (3,6) (4,8) (5,9) (6,8) (7,6) (8,3) (9,2) (10,1) (11,0)
+            };
+        \end{axis}
+        
+        % Plot 3: Smooth Curve
+        \begin{axis}[
+            at={(12cm,0)}, width=5cm, height=5cm,
+            xtick=\empty, ytick=\empty,
+            title={Continuous (Infinite Precision)},
+            axis lines=left, ymin=0
+        ]
+            \addplot[thick, red, smooth, domain=-3:3] {exp(-x^2)};
+        \end{axis}
+    \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Probability Mass Function (PMF)}
+    The PMF, denoted as $P(X=x)$ or $p_X(x)$, gives the probability that the discrete random variable $X$ is exactly equal to some value $x$.
+    
+    \begin{block}{Properties}
+        \begin{enumerate}
+            \item $0 \leq P(X=x) \leq 1$ for all $x$.
+            \item $\sum_{x} P(X=x) = 1$ (The sum of all probabilities must be 1).
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}{PMF Example 1: Load Balancing}
+    \textbf{Scenario:} A server receives 3 requests. Each has a 50\% chance of being ``High Priority''. Let $X$ = Number of High Priority requests.
+    
+    \pause
+    \begin{columns}
+        \column{0.38\textwidth}
+        \small
+        \begin{table}
+        \begin{tabular}{c c}
+            \toprule
+            $x$ & $P(X=x)$ \\
+            \midrule
+            0 & $1/8 = 0.125$ \\
+            1 & $3/8 = 0.375$ \\
+            2 & $3/8 = 0.375$ \\
+            3 & $1/8 = 0.125$ \\
+            \bottomrule
+        \end{tabular}
+        \end{table}
+        
+        \column{0.58\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.6]
+            \begin{axis}[
+                ybar, symbolic x coords={0, 1, 2, 3}, xtick=data,
+                ylabel={$P(X=x)$}, xlabel={$X$}, ymin=0, ymax=0.5, bar width=15pt
+            ]
+            \addplot coordinates {(0,0.125) (1,0.375) (2,0.375) (3,0.125)};
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{PMF Example 3: Error Count}
+    \textbf{Scenario:} A coder writes a function. The probability of having $x$ bugs is given by $P(X=x) = k/2^x$ for $x \in \{1, 2, 3\}$, otherwise 0.
+    
+    \vspace{0.2cm}
+    \textbf{Find Constant k:}
+    $$\sum P(X=x) = 1 \implies \frac{k}{2} + \frac{k}{4} + \frac{k}{8} = 1$$
+    $$\frac{4k + 2k + k}{8} = 1 \implies \frac{7k}{8} = 1 \implies k = 8/7$$
+    
+    \textbf{PMF:}
+    $$P(X=1) = 4/7, \quad P(X=2) = 2/7, \quad P(X=3) = 1/7$$
+\end{frame}
+
+\begin{frame}{Cumulative Distribution Function (CDF)}
+    The CDF, $F_X(x) = P(X \leq x)$, represents the running total of probabilities. For discrete variables, it is a \textbf{Step Function}.
+    
+    \begin{columns}
+        \column{0.38\textwidth}
+        \textbf{Using Example 3 (Errors):}
+        \begin{itemize}
+            \item $x < 1$: $0$
+            \item $1 \leq x < 2$: $4/7 \approx 0.57$
+            \item $2 \leq x < 3$: $4/7 + 2/7 = 6/7 \approx 0.86$
+            \item $x \geq 3$: $1.0$
+        \end{itemize}
+        
+        \column{0.58\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.7]
+            \begin{axis}[
+                axis lines=left,
+                xlabel=$x$, ylabel=$F_X(x)$,
+                ymin=0, ymax=1.2, xmin=0, xmax=4,
+                clip=false
+            ]
+                % Steps
+                \draw[blue, thick] (axis cs:0,0) -- (axis cs:1,0);
+                \draw[blue, thick] (axis cs:1,0.57) -- (axis cs:2,0.57);
+                \draw[blue, thick] (axis cs:2,0.86) -- (axis cs:3,0.86);
+                \draw[blue, thick] (axis cs:3,1) -- (axis cs:4,1);
+                
+                % Circles
+                \fill[white, draw=blue] (axis cs:1,0) circle (2pt);
+                \fill[blue] (axis cs:1,0.57) circle (2pt);
+                
+                \fill[white, draw=blue] (axis cs:2,0.57) circle (2pt);
+                \fill[blue] (axis cs:2,0.86) circle (2pt);
+                
+                \fill[white, draw=blue] (axis cs:3,0.86) circle (2pt);
+                \fill[blue] (axis cs:3,1) circle (2pt);
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Probability Density Function (PDF)}
+    For Continuous Random Variables, we use a \textbf{Probability Density Function (PDF)}, denoted $f(x)$.
+    
+    \begin{columns}
+        \column{0.47\textwidth}
+        \begin{block}{Key Differences from PMF}
+            \begin{enumerate}
+                \item \textbf{PMF (Discrete):} $P(X=x)$ is the height of the bar.
+                \item \textbf{PDF (Continuous):} The height $f(x)$ is \textbf{NOT} the probability.
+                \item \textbf{Area is Probability:} Probability is the \textbf{Area under the curve}.
+            \end{enumerate}
+        \end{block}
+        
+        \column{0.47\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.6]
+            \begin{axis}[
+                domain=0:5, samples=100,
+                axis lines=left, xlabel=$x$, ylabel=$f(x)$,
+                height=5cm, width=7cm
+            ]
+            \addplot [fill=blue!20, draw=none, domain=2:3] {0.5} \closedcycle;
+            \addplot [thick, blue] {0.5}; % Uniform PDF example
+            \node at (axis cs: 2.5, 0.25) {Area = Prob};
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Calculating Probability (Integration)}
+    To find the probability that $X$ falls between $a$ and $b$, we integrate the PDF:
+    
+    $$ P(a \leq X \leq b) = \int_{a}^{b} f(x) \, dx $$
+    
+    \begin{block}{Properties of PDF}
+        \begin{enumerate}
+            \item $f(x) \geq 0$ for all $x$. (Density cannot be negative).
+            \item Total Area = 1: $\int_{-\infty}^{\infty} f(x) \, dx = 1$.
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}{The Zero Probability Paradox}
+    \textbf{Concept:} For a continuous variable, the probability of taking an \textbf{exact} value is Zero.
+    $$ P(X = c) = \int_{c}^{c} f(x) \, dx = 0 $$
+    
+    \pause
+    \vspace{0.3cm}
+    \textbf{Intuition: The Infinite Digital Scale}
+    Imagine a digital scale with infinite decimal places.
+    \begin{itemize}
+        \item You weigh an apple.
+        \item Is it \textbf{exactly} 100g?
+        \item It might be 100.000000001g or 99.999999998g.
+        \item The probability of hitting exactly $100.000...$ (infinite zeros) is impossible (1 outcome out of infinite possibilities).
+    \end{itemize}
+    \textit{Conclusion: We only calculate probabilities for Intervals (e.g., between 99.0g and 101.0g).}
+\end{frame}
+
+\begin{frame}{Cumulative Distribution Function (CDF)}
+    The CDF, $F(x)$, gives the probability that the variable takes a value less than or equal to $x$.
+    $$ F(x) = P(X \leq x) = \int_{-\infty}^{x} f(t) \, dt $$
+    
+    \begin{columns}
+        \column{0.47\textwidth}
+        \textbf{Relationship:}
+        \begin{itemize}
+            \item PDF is the derivative of CDF: $f(x) = F'(x)$.
+            \item Prob of interval: $P(a \leq X \leq b) = F(b) - F(a)$.
+        \end{itemize}
+        
+        \column{0.47\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.5]
+            \begin{axis}[
+                xlabel=$x$, ylabel=$F(x)$,
+                ymin=0, ymax=1.1, xmin=0, xmax=5,
+                axis lines=left
+            ]
+            % Example CDF (S-curve)
+            \addplot[red, thick, domain=0:5] {1 - exp(-x)};
+            \draw[dashed] (axis cs:0,1) -- (axis cs:5,1);
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Numerical Example 1: The Linear PDF}
+    \textbf{Problem:} Let $X$ be a random variable with PDF:
+    $$ f(x) = \begin{cases} 2x & \text{for } 0 \leq x \leq 1 \\ 0 & \text{otherwise} \end{cases} $$
+    Calculate $P(X > 0.5)$.
+    
+    \pause
+    \vspace{0.2cm}
+    \textbf{Solution:}
+    $$ P(X > 0.5) = \int_{0.5}^{1} 2x \, dx $$
+    \pause
+    $$ = \left[ x^2 \right]_{0.5}^{1} $$
+    \pause
+    $$ = (1^2) - (0.5^2) = 1 - 0.25 = 0.75 $$
+\end{frame}
+
+\begin{frame}{Quick Check}
+    \centering
+    \Large \textcolor{highlight}{Quick Check: PMF \& PDF}
+\end{frame}
+
+\begin{frame}{Quiz Q1: Can Density Exceed 1?}
+    \textbf{Q1:} Can the value of the Probability Density Function $f(x)$ be greater than 1?
+    
+    \vspace{0.3cm}
+    A) No, probability can never exceed 1. \\
+    B) Yes, because $f(x)$ is density, not probability.
+    
+    \pause
+    \vspace{0.3cm}
+    \textbf{Answer: B.} 
+    $f(x)$ represents density. For example, if $X \sim U(0, 0.1)$, the height is $1/(0.1) = 10$. The \textbf{Area} must be 1, but height can be anything.
+\end{frame}
+
+% =========================================================================
+% SECTION 3: Expectation and Variance (Unified: Discrete + Continuous)
+% =========================================================================
+\section{Expectation and Variance}
+\begin{frame}
+    \centering
+    \Huge \textcolor{highlight}{Chapter 3: Expectation and Variance}\\
+    \vspace{0.5cm}
+    \large One Set of Ideas, Two Kinds of Math
+\end{frame}
+
+\begin{frame}{Expectation: The Weighted Average}
+    The Expectation $E[X]$ is the \textbf{weighted average} of the possible values --- the ``center of gravity'' of the distribution. The formula's shape depends only on whether $X$ is discrete or continuous:
+
+    \begin{columns}
+        \column{0.47\textwidth}
+        \begin{block}{Discrete: Sum}
+            $$E[X] = \sum_{x} x \cdot P(X=x)$$
+        \end{block}
+        \column{0.47\textwidth}
+        \begin{block}{Continuous: Integral}
+            $$E[X] = \int_{-\infty}^{\infty} x \cdot f(x) \, dx$$
+        \end{block}
+    \end{columns}
+    \vspace{0.3cm}
+    \textit{Same idea both times: multiply each value by how likely it is, then total it up. A sum just becomes an integral when there are infinitely many values to weigh.}
+\end{frame}
+
+\begin{frame}{Expectation: Worked Examples, Side by Side}
+    \begin{columns}
+        \column{0.47\textwidth}
+        \textbf{Discrete: Fair Die Roll}
+        $$E[X] = 1\left(\tfrac{1}{6}\right) + 2\left(\tfrac{1}{6}\right) + \dots + 6\left(\tfrac{1}{6}\right)$$
+        $$E[X] = \frac{21}{6} = 3.5$$
+
+        \column{0.47\textwidth}
+        \textbf{Continuous: $f(x) = 2x$ on $[0,1]$}
+        $$E[X] = \int_{0}^{1} x \cdot (2x)\, dx = \int_0^1 2x^2\,dx$$
+        $$E[X] = \left[\frac{2x^3}{3}\right]_0^1 = \frac{2}{3} \approx 0.67$$
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Linearity of Expectation}
+    \textbf{Property (identical for discrete and continuous):}
+    $$ E[aX + b] = a\,E[X] + b $$
+
+    \vspace{0.3cm}
+    \textbf{Real World Example: Project Cost Estimation}
+    \begin{itemize}
+        \item Let $X$ be the time (in hours) to complete a coding task. $E[X] = 10$ hours.
+        \item A consultant charges \$50 per hour plus a \$100 fixed fee: $Y = 50X + 100$.
+    \end{itemize}
+
+    \pause
+    \vspace{0.3cm}
+    \textbf{Expected Cost:} $50(10) + 100 = \$600$.\\
+    \textit{(We will revisit this example once Variance has been defined.)}
+\end{frame}
+
+\begin{frame}{Variance: Measuring the Spread}
+    Variance measures how far values typically land from the mean $\mu = E[X]$:
+
+    \begin{columns}
+        \column{0.47\textwidth}
+        \begin{block}{Discrete: Sum}
+            $$Var(X) = \sum_x (x-\mu)^2 P(X=x)$$
+        \end{block}
+        \column{0.47\textwidth}
+        \begin{block}{Continuous: Integral}
+            $$Var(X) = \int (x-\mu)^2 f(x)\, dx$$
+        \end{block}
+    \end{columns}
+    \vspace{0.2cm}
+    \textbf{Standard Deviation:} $\sigma_X = \sqrt{Var(X)}$ --- same units as $X$ itself.
+\end{frame}
+
+\begin{frame}{High vs. Low Variance (Same Mean)}
+    Both distributions below have the same Mean ($\mu=3$), but different Variances.
+    \vspace{0.5cm}
+    \begin{columns}
+        \column{0.47\textwidth}
+        \centering
+        \textbf{Low Variance}\\
+        \begin{tikzpicture}[scale=0.5]
+            \begin{axis}[ybar, ymin=0, ymax=1, xtick={1,2,3,4,5}]
+                \addplot coordinates {(1,0.05) (2,0.1) (3,0.7) (4,0.1) (5,0.05)};
+            \end{axis}
+        \end{tikzpicture}\\
+        \vspace{0.25cm}
+        \small Data is clustered near 3.
+        
+        \column{0.47\textwidth}
+        \centering
+        \textbf{High Variance}\\
+        \begin{tikzpicture}[scale=0.5]
+            \begin{axis}[ybar, ymin=0, ymax=1, xtick={1,2,3,4,5}]
+                \addplot coordinates {(1,0.3) (2,0.1) (3,0.2) (4,0.1) (5,0.3)};
+            \end{axis}
+        \end{tikzpicture}\\
+        \vspace{0.25cm}
+        \small Data is spread far from 3.
+    \end{columns}
+\end{frame}
+
+\begin{frame}{The Shortcut Formula (Works for Both)}
+    We use the property $Var(X) = E[X^2] - (E[X])^2$ for easier calculation. The proof only uses linearity of $E[\cdot]$, so it holds for discrete \textbf{and} continuous $X$ unchanged.
+    
+    \begin{enumerate}
+        \item Let $\mu = E[X]$. By definition:
+        $$Var(X) = E[(X - \mu)^2]$$
+        \item Expand the squared term:
+        $$(X - \mu)^2 = X^2 - 2X\mu + \mu^2$$
+        \item Apply Linearity of Expectation:
+        $$E[X^2 - 2X\mu + \mu^2] = E[X^2] - 2\mu E[X] + \mu^2$$
+        \item Substitute $E[X] = \mu$:
+        $$= E[X^2] - 2\mu(\mu) + \mu^2 = E[X^2] - 2\mu^2 + \mu^2$$
+        $$= E[X^2] - \mu^2 \implies E[X^2] - (E[X])^2 \quad$$
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Variance: Worked Examples, Side by Side}
+    \begin{columns}
+        \column{0.47\textwidth}
+        \textbf{Discrete: Daily Complaints}
+        \begin{tabular}{c|ccc}
+            $x$ & 0 & 1 & 2 \\
+            \hline
+            $P(X=x)$ & 0.2 & 0.5 & 0.3 \\
+        \end{tabular}
+        \vspace{0.15cm}
+
+        $\mu = 0(0.2)+1(0.5)+2(0.3) = 1.1$
+        \begin{align*}
+            Var(X) &= (0-1.1)^2(0.2) + (1-1.1)^2(0.5) \\
+                   &\quad + (2-1.1)^2(0.3) \\
+                   &= 0.242 + 0.005 + 0.243 = \mathbf{0.49}
+        \end{align*}
+
+        \column{0.47\textwidth}
+        \textbf{Continuous: $f(x)=2x$ on $[0,1]$}
+        ($\mu = 2/3$, from earlier)
+        $$E[X^2] = \int_0^1 x^2(2x)\,dx = \left[\frac{2x^4}{4}\right]_0^1 = 0.5$$
+        $$Var(X) = 0.5 - \left(\tfrac{2}{3}\right)^2 = 0.5 - 0.444 = \mathbf{0.055}$$
+    \end{columns}
+    \vspace{0.2cm}
+    \textit{Same shortcut formula, one uses a sum, the other an integral.}
+\end{frame}
+
+\begin{frame}{Variance Under Scaling (Works for Both)}
+    \textbf{Property:} If $Y = aX + b$, then $Var(Y) = a^2 Var(X)$.
+    
+    \vspace{0.15cm}
+    \textbf{Proof:}
+    \begin{itemize}
+        \item Let $\mu_X = E[X]$. Mean of $Y$ is $\mu_Y = a\mu_X + b$.
+        \item $Var(Y) = E[(Y - \mu_Y)^2] = E[((aX + b) - (a\mu_X + b))^2]$
+        \item Simplify inside: $(aX - a\mu_X) = a(X - \mu_X)$.
+        \item Square it: $a^2(X - \mu_X)^2$.
+        \item Apply Expectation: $E[a^2(X - \mu_X)^2] = a^2 E[(X - \mu_X)^2] = a^2 Var(X). \quad$
+    \end{itemize}
+    \textit{Note: Adding a constant $b$ shifts the distribution but does not change the spread.}
+
+    \pause
+    \vspace{0.15cm}
+    \textbf{Back to Project Cost Estimation:} recall $Var(X) = 4$ and $Y = 50X+100$:
+    \\
+    \textbf{Variance of Cost:} $50^2 \cdot Var(X) = 2500 \cdot 4 = 10{,}000$. \quad
+    \textbf{Std Dev:} $\sqrt{10{,}000} = \$100$.
+\end{frame}
+
+\begin{frame}{Quick Check}
+    \centering
+    \Large \textcolor{highlight}{Quick Check: Expectation \& Variance}
+\end{frame}
+
+\begin{frame}{Quiz Q1: Expectation via Integration}
+    \textbf{Q1:} Calculate $E[X]$ if $f(x) = 3x^2$ for $0 \leq x \leq 1$.
+    
+    \vspace{0.3cm}
+    A) 0.5 \quad B) 0.75 \quad C) 1.0 \quad D) 0.25
+    
+    \pause
+    \vspace{0.3cm}
+    \textbf{Answer: B) 0.75}
+    $$ E[X] = \int_0^1 x(3x^2) dx = \int_0^1 3x^3 dx = \left[ \frac{3x^4}{4} \right]_0^1 = \frac{3}{4} $$
+\end{frame}
+
+\begin{frame}{Quiz Q2: Variance Under Scaling}
+    \textbf{Q2:} You are training a model. You have a random variable $X$ with $Var(X) = 10$. You decide to normalize the data by doubling it and adding 5 ($Y = 2X + 5$). 
+    What is the variance of the new variable $Y$?
+    
+    \vspace{0.3cm}
+    A) 25 \quad B) 20 \quad C) 40 \quad D) 45
+    
+    \pause
+    \vspace{0.3cm}
+    \textbf{Answer: C) 40}
+    $$Var(aX + b) = a^2 Var(X)$$
+    $$Var(2X + 5) = 2^2 \cdot 10 = 4 \cdot 10 = 40$$
+\end{frame}
+
+\begin{frame}{Quiz Q3: Standard Deviation from Moments}
+    \textbf{Q3:} If $E[X] = 5$ and $E[X^2] = 30$, what is the Standard Deviation $\sigma$?
+    
+    \vspace{0.3cm}
+    A) 5 \quad B) $\sqrt{5}$ \quad C) 25 \quad D) $\sqrt{30}$
+    
+    \pause
+    \vspace{0.3cm}
+    \textbf{Answer: B) $\sqrt{5}$}
+    $$Var(X) = E[X^2] - (E[X])^2 = 30 - 25 = 5 \implies \sigma = \sqrt{5}$$
+\end{frame}
+
+% =========================================================================
+% SECTION 4: Common Distributions
+% =========================================================================
+\section{Common Distributions}
+\begin{frame}
+    \centering
+    \Huge \textcolor{highlight}{Chapter 4: Common Distributions}\\
+    \vspace{0.5cm}
+    \large Discrete and Continuous
+\end{frame}
+
+\begin{frame}{1. Uniform Distribution: Discrete vs Continuous}
+    \textbf{Same idea both times: every outcome in the range is equally likely.}
+    \begin{columns}
+        \column{0.47\textwidth}
+        \centering \textbf{Discrete: $X \sim U(a,b)$}
+        \begin{itemize}
+            \item $n = b-a+1$ integer outcomes
+            \item $P(X=k) = \dfrac{1}{n}$
+            \item Mean: $\dfrac{a+b}{2}$
+            \item Var: $\dfrac{n^2-1}{12}$
+        \end{itemize}
+        \begin{tikzpicture}[scale=0.42]
+            \begin{axis}[ybar, ymin=0, ymax=0.3, xtick={1,2,3,4,5,6},
+                ylabel={$P(X=k)$}, xlabel={$k$}, bar width=8pt]
+            \addplot coordinates {(1,0.166)(2,0.166)(3,0.166)(4,0.166)(5,0.166)(6,0.166)};
+            \end{axis}
+        \end{tikzpicture}
+
+        \column{0.47\textwidth}
+        \centering \textbf{Continuous: $X \sim U(a,b)$}
+        \begin{itemize}
+            \item Any real value in $[a,b]$
+            \item $f(x) = \dfrac{1}{b-a}$
+            \item Mean: $\dfrac{a+b}{2}$
+            \item Var: $\dfrac{(b-a)^2}{12}$
+        \end{itemize}
+        \begin{tikzpicture}[scale=0.42]
+            \begin{axis}[axis lines=left, ymin=0, ymax=1.2, xmin=0, xmax=3,
+                xtick={1,2}, xticklabels={$a$,$b$}, ylabel=$f(x)$]
+            \addplot[thick, blue] coordinates {(0,0)(1,0)(1,1)(2,1)(2,0)(3,0)};
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{2. Bernoulli Distribution}
+    \begin{columns}
+        \column{0.58\textwidth}
+        \textbf{Definition:} Single trial with binary outcome (0 or 1).
+        
+        \textbf{Use Cases:}
+        \begin{itemize}
+            \item Tossing a coin 
+            \item Pass/Fail in an exam.
+            \item an item being defective or not.
+            % \item \textbf{ML:} Binary Classification target (Is this email Spam? Yes/No).
+        \end{itemize}
+        \vspace{0.5cm}
+        \textbf{Notation:} $X \sim \text{Bern}(p)$ \\
+        \textbf{Parameter:} $p$ (prob of success).\\
+        \textbf{PMF:} $$P(X=x) = 
+                        \begin{cases} 
+                        p & \text{if } x = 1 \\
+                        1-p & \text{if } x = 0 
+                        \end{cases}$$
+        \textbf{Properties:}
+        \begin{itemize}
+            \item \textbf{Mean:} $E[X] = p$
+            \item \textbf{Variance:} $Var(X) = p(1-p)$
+        \end{itemize}
+
+        \column{0.38\textwidth}
+        \centering
+        \textbf{PMF Plot ($p=0.7$)}
+        \begin{tikzpicture}[scale=0.6]
+            \begin{axis}[
+                ybar, xtick={0,1}, ymin=0, ymax=1,
+                xlabel={$x$}, ylabel={$P(X=x)$}
+            ]
+                \addplot coordinates {(0,0.3) (1,0.7)};
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{3. Binomial Distribution}
+    \textbf{Definition:} Number of successes in $n$ independent Bernoulli trials.
+    
+    \textbf{Use Cases:}
+    \begin{itemize}
+        \item \textbf{Quality Control:} If you test 20 items ($n$), and each has 10\% chance of defect ($p$), what is the probability that less than 5 items are defective?
+        % \item \textbf{ML:} Ensemble Learning (Voting). If 10 models vote, and each is 70\% accurate, what is the prob majority wins?
+    \end{itemize}
+    \vspace{0.25cm}
+    \begin{columns}
+        \column{0.58\textwidth}
+        \textbf{Notation:}
+        $X \sim \text{Bin}(n, p)$\\
+        \textbf{Parameters:}
+        \begin{itemize}
+            \item $n$: The total number of independent trials.
+            \item $p$: The probability of success in a single trial.
+        \end{itemize}
+        \textbf{PMF:}
+        $$P(X = k) = \binom{n}{k} p^k (1-p)^{n-k} \quad;\ 0 \leq k \leq n $$ \\
+        \textbf{Properties:}
+        \begin{itemize}
+            \item \textbf{Mean:} $E[X] = np$
+            \item \textbf{Variance:} $Var(X) = np(1-p)$
+        \end{itemize}
+        
+        \column{0.38\textwidth}
+        \centering
+        \textbf{PMF ($n=10, p=0.5$)}
+        \begin{tikzpicture}[scale=0.6]
+            \begin{axis}[ybar, ymin=0, xlabel={$x$}, ylabel={$P(X=x)$}]
+                \addplot+[ybar] plot coordinates {
+                    (0,0.001) (1,0.01) (2,0.04) (3,0.11) (4,0.20)
+                    (5,0.24) (6,0.20) (7,0.11) (8,0.04) (9,0.01) (10,0.001)
+                };
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{4. Poisson Distribution}
+    \begin{columns}
+        \column{0.58\textwidth}
+        \textbf{Definition:} Models the number of events occurring in a fixed interval of time or space.\\
+        \textbf{Use Cases:}
+        \begin{itemize}
+            \item \textbf{Queues:}the probability of receiving a specific number of customer service calls during a peak hour.
+            \item \textbf{Website Traffic:} Predicting the number of visitors or server requests per minute.
+        \end{itemize}
+        \vspace{0.15cm}
+        \textbf{Notation:} $X \sim Pois(\lambda)$\\
+        \textbf{Parameter:} $\lambda:$ The average number of events per interval.\\
+        \textbf{PMF:}
+        $$P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}$$
+        \textbf{Properties:}
+        \begin{itemize}
+            \item \textbf{Mean:} $E[X] = \lambda$
+            \item \textbf{Variance:} $Var(X) = \lambda$
+        \end{itemize}
+
+        \column{0.38\textwidth}
+        \centering
+        \textbf{PMF ($\lambda=4$)}
+        \begin{tikzpicture}[scale=0.6]
+            \begin{axis}[
+                ybar, xlabel={$k$}, ylabel={$P(X=k)$},
+                ymin=0, ymax=0.25, xmin=-0.5, xmax=10.5
+            ]
+            \addplot coordinates {
+                (0,0.018) (1,0.073) (2,0.146) (3,0.195) 
+                (4,0.195) (5,0.156) (6,0.104) (7,0.059) (8,0.029) (9,0.013) (10,0.005)
+            };
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{5. Exponential Distribution}
+    \textbf{Notation:} $X \sim \text{Exp}(\lambda)$\\
+    \textbf{Use Case:} Modeling time until an event (e.g., time until next customer arrives).\\
+    \textbf{Parameter:} $\lambda:$ commonly known as the rate parameter.
+    \vspace{0.5cm}
+    \begin{columns}
+        \column{0.47\textwidth}
+        \begin{itemize}
+            \item \textbf{PDF:} $f(x) = \lambda e^{-\lambda x}$ ($x \geq 0$)
+            \item \textbf{Mean:} $1/\lambda$
+            \item \textbf{Variance:} $1/\lambda^2$
+        \end{itemize}
+        
+        \column{0.47\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.6]
+            \begin{axis}[
+                axis lines=left, domain=0:4,
+                xlabel=$x$, ylabel=$f(x)$
+            ]
+                \addplot[thick, blue] {1.5 * exp(-1.5*x)};
+                \node at (axis cs: 1.5, 0.5) {Decays rapidly};
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Exponential: Memoryless Property}
+    \begin{block}{The Property}
+        $$ P(X > s + t \mid X > s) = P(X > t) $$
+    \end{block}
+    
+    \textbf{Interpretation:} The probability of waiting $t$ more minutes is the same, regardless of how long ($s$) you have already waited.
+    
+    \vspace{0.3cm}
+    \textbf{Real Life Example:}
+    \begin{itemize}
+        \item \textbf{Radioactive Decay:}  An atom doesn't ``age''. The chance it decays in the next second is constant, whether it's 1 second old or 1 billion years old.
+        \item \textbf{Customer Arrivals:} If arrivals are random (Poisson process), the time you’ve already waited for a customer does not change how much longer you will likely wait.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{6. Normal (Gaussian) Distribution}
+    \textbf{Notation:} $X \sim \mathcal{N}(\mu, \sigma^2)$\\
+    \textbf{Description:} The ``Bell Curve''. Most common distribution in nature.\\
+    \textbf{Parameters:}
+    \begin{itemize}
+        \item $\mu$ (Mean/Location): This represents the center or peak of the ``bell"
+        \item $\sigma^2$ (Variance/Scale): This represents the ``spread" of the distribution.
+    \end{itemize}
+    \textbf{PDF:} $$f(x \mid \mu, \sigma) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$$
+    \vspace{0.5cm}
+    \centering
+    \begin{tikzpicture}[scale=0.7]
+        \begin{axis}[
+            domain=-4:4, samples=100,
+            axis lines=left, height=5cm, width=10cm,
+            xtick={0}, xticklabels={$\mu$},
+            ylabel=$f(x)$
+        ]
+            \addplot[thick, blue] {exp(-x^2 / 2)};
+            \draw[dashed] (axis cs:0,0) -- (axis cs:0,1);
+        \end{axis}
+    \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Normal Distribution: Parameters}
+    \begin{columns}
+        \column{0.47\textwidth}
+        \textbf{Mean ($\mu$):} shifts the center.
+        \centering
+        \begin{tikzpicture}[scale=0.6]
+            \begin{axis}[axis lines=left, ytick=\empty]
+                \addplot[blue, thick, domain=-4:4] {exp(-(x+1)^2)};
+                \addplot[red, thick, domain=-4:4] {exp(-(x-1)^2)};
+                \node at (axis cs:-1,0.5) {$\mu_1$};
+                \node at (axis cs:1,0.5) {$\mu_2$};
+            \end{axis}
+        \end{tikzpicture}
+        
+        \column{0.47\textwidth}
+        \textbf{Variance ($\sigma^2$):} changes the width.
+        \centering
+        \begin{tikzpicture}[scale=0.6]
+            \begin{axis}[axis lines=left, ytick=\empty]
+                \addplot[blue, thick, domain=-4:4] {exp(-x^2)};
+                \addplot[red, thick, domain=-4:4] {0.5*exp(-(x^2)/4)};
+                \node at (axis cs:2,0.5) {Low $\sigma$};
+                \node at (axis cs:3,0.1) {High $\sigma$};
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{The 68-95-99.7 Rule (Empirical Rule)}
+    \begin{columns}
+        % --- Text Column ---
+        \column{0.45\textwidth}
+        \textbf{For a Normal Distribution:}
+        \begin{itemize}
+            \item \textbf{68\%} of the data falls within \textbf{one} standard deviation of the mean ($\mu \pm 1\sigma$).
+            \item \textbf{95\%} of the data falls within \textbf{two} standard deviations ($\mu \pm 2\sigma$).
+            \item \textbf{99.7\%} of the data falls within \textbf{three} standard deviations ($\mu \pm 3\sigma$).
+        \end{itemize}
+        
+        \vspace{0.3cm}
+        \small \textit{Interpretation: It is extremely rare (only 0.3\% chance) for data to fall outside the $3\sigma$ range.}
+
+        % --- Image Column ---
+        \column{0.55\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.55]
+            \begin{axis}[
+                domain=-4:4, samples=100,
+                height=7cm, width=11cm,
+                xtick={-3,-2,-1,0,1,2,3},
+                xticklabels={$-3\sigma$, $-2\sigma$, $-1\sigma$, $\mu$, $+1\sigma$, $+2\sigma$, $+3\sigma$},
+                axis lines=left, ytick=\empty,
+                clip=false
+            ]
+                % The Curve
+                \addplot[name path=f, thick, black] {exp(-x^2/2)};
+                \path[name path=axis] (axis cs:-4,0) -- (axis cs:4,0);
+                
+                % Vertical Lines
+                \draw[dotted, thick] (axis cs:-1,0) -- (axis cs:-1,0.606);
+                \draw[dotted, thick] (axis cs:1,0) -- (axis cs:1,0.606);
+                \draw[dotted, thick] (axis cs:-2,0) -- (axis cs:-2,0.135);
+                \draw[dotted, thick] (axis cs:2,0) -- (axis cs:2,0.135);
+                \draw[dotted, thick] (axis cs:-3,0) -- (axis cs:-3,0.011);
+                \draw[dotted, thick] (axis cs:3,0) -- (axis cs:3,0.011);
+
+                % Labels (Probabilities)
+                \node at (axis cs:0, 0.4) {\textbf{68\%}};
+                
+                % Arrows for 95%
+                \draw[<->, thick] (axis cs:-2, 0.2) -- (axis cs:2, 0.2) node[midway, fill=white] {\textbf{95\%}};
+                
+                % Arrows for 99.7%
+                \draw[<->, thick] (axis cs:-3, 0.08) -- (axis cs:3, 0.08) node[midway, fill=white] {\textbf{99.7\%}};
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Standard Normal Distribution ($Z$)}
+    If we scale any Normal variable, we get the \textbf{Standard Normal}:
+    $$ Z = \frac{X - \mu}{\sigma} \sim \mathcal{N}(0, 1) $$
+    
+    \begin{columns}
+        \column{0.47\textwidth}
+        \textbf{Properties:}
+        \begin{itemize}
+            \item Mean $\mu = 0$
+            \item Std Dev $\sigma = 1$
+            \item PDF: $\phi(z) = \frac{1}{\sqrt{2\pi}} e^{-\frac{z^2}{2}} $
+            \item Used for ``Z-Scores" (how many sigmas away is a data point?).
+        \end{itemize}
+        \column{0.47\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.5]
+            \begin{axis}[domain=-3.5:3.5, samples=100, axis lines=middle, xlabel=$z$]
+                \addplot[thick, blue] {exp(-x^2/2)};
+                \node at (axis cs:0, -0.2) {0};
+                \node at (axis cs:1, -0.2) {1};
+                \node at (axis cs:-1, -0.2) {-1};
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Anomaly Detection using Standard Normal Distribution}
+    \begin{columns}
+        % --- Text Column ---
+        \column{0.47\textwidth}
+        \textbf{Concept:}
+        \begin{itemize}
+            \item In a Normal distribution, values far from the mean ($\mu$) are rare.
+            \item We calculate the \textbf{Z-score}: $Z = \frac{x - \mu}{\sigma}$.
+            \item \textbf{Threshold:} Typically, if $|Z| > 3$ (more than 3 standard deviations away), the data point is flagged as an \textbf{Anomaly} or \textbf{Outlier}.
+        \end{itemize}
+        
+        \vspace{0.2cm}
+        \textbf{Example: Network Security}
+        \begin{itemize}
+            \item Normal traffic: $\mu = 50$ Mbps, $\sigma = 5$ Mbps.
+            \item \textbf{Event:} Current traffic is 70 Mbps.
+            \item $Z = \frac{70 - 50}{5} = 4$.
+            \item Since $4 > 3$, this is an \textbf{Anomaly} (Potential DDoS attack).
+        \end{itemize}
+
+        % --- Image Column ---
+        \column{0.47\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.6]
+            \begin{axis}[
+                domain=-4:4, samples=100,
+                xmin=-4.8, xmax=4.8,
+                height=6cm, width=9.6cm,
+                axis lines=left, ytick=\empty,
+                xtick={-3, 0, 3},
+                xticklabels={$-3\sigma$, $\mu$, $+3\sigma$},
+                xlabel=$Z$-score,
+                clip=false
+            ]
+                % Define the Normal Curve
+                \addplot[name path=f, thick, black] {exp(-x^2/2)};
+                \path[name path=axis] (axis cs:-4,0) -- (axis cs:4,0);
+                
+                % Shade Normal Region (Green/Blue)
+                \addplot[fill=blue!10] fill between[of=f and axis, soft clip={domain=-3:3}];
+                
+                % Shade Anomaly Regions (Red)
+                \addplot[fill=red!40] fill between[of=f and axis, soft clip={domain=3:4}];
+                \addplot[fill=red!40] fill between[of=f and axis, soft clip={domain=-4:-3}];
+                
+                % Labels: the curve is essentially flat (near 0) for |x|>3,
+                % so everything here sits in clear space -- separated both
+                % vertically and horizontally to avoid any overlap.
+                \node at (axis cs:0, 1.18) {Normal Behavior};
+                \node[red, align=center] at (axis cs:3.0, 0.55) {Anomaly\\(Rare)};
+                \node[red, align=center] at (axis cs:-3.0, 0.55) {Anomaly\\(Rare)};
+                
+                % Example Point arrow, well below and right of the "Anomaly" label
+                \draw[->, thick, blue] (axis cs:4.3, 0.18) -- (axis cs:4, 0.02);
+                \node[blue, anchor=west] at (axis cs:4.35, 0.18) {$Z=4$};
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Numerical Problem 1: Manufacturing}
+    \textbf{Scenario:} A machine cuts rods. Length $L \sim \mathcal{N}(10 \text{cm}, 0.04 \text{cm}^2)$ ($\sigma = 0.2$).
+    Rods must be between $9.6$ and $10.4$. What \% are defective?
+    
+    \pause
+    \textbf{Solution:}
+    \begin{enumerate}
+        \item Limits are $10 \pm 0.4$.
+        \item Since $\sigma = 0.2$, the limits are exactly $\mu \pm 2\sigma$.
+        \item We know 95\% are inside $\pm 2\sigma$.
+        \item Therefore, $100\% - 95\% = 5\%$ are defective.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Numerical Problem 2: Credit Card Fraud Detection}
+    \textbf{Scenario:} 
+    A bank's fraud detection system monitors the spending habits of a customer. Their transaction amounts follow a Normal Distribution with a mean $\mu = \$50$ and a standard deviation $\sigma = \$15$.
+    
+    The system is programmed to flag any transaction with a Z-score greater than 3 ($|Z| > 3$) as \textbf{``Suspicious Activity"}.
+    
+    \vspace{0.2cm}
+    \textbf{Question:} 
+    A new transaction of $\$100$ is attempted on the card. Will the system flag this transaction?
+    
+    \pause
+    \vspace{0.3cm}
+    \textbf{Solution:}
+    \begin{enumerate}
+        \item \textbf{Calculate the Z-score:}
+        $$ Z = \frac{x - \mu}{\sigma} = \frac{100 - 50}{15} = \frac{50}{15} \approx 3.33 $$
+        \pause
+        \item \textbf{Compare with Threshold:}
+        Since $3.33 > 3$, the transaction is more than 3 standard deviations above the average spending.
+        \item \textbf{Conclusion:} The system \textbf{will flag} this transaction as suspicious.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Numerical Problem 3: Inverse Problem}
+    \textbf{Scenario:} Delivery time $T \sim \mathcal{N}(30, 16)$ ($\sigma=4$). We want to promise a time $t$ such that we are 97.5\% sure we arrive before $t$.
+    
+    \pause
+    \begin{columns}
+        \column{0.58\textwidth}
+        \textbf{Solution:}
+        \begin{itemize}
+            \item We need the cumulative area to be 0.975.
+            \item 95\% is middle. The tails are 2.5\% each.
+            \item Area to left of $+2\sigma$ is $50\% (\text{left half}) + 47.5\% (\text{half of 95}) = 97.5\%$.
+            \item $t = \mu + 2\sigma = 30 + 2(4) = 38$ mins.
+        \end{itemize}
+        
+        \column{0.38\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.5]
+            \begin{axis}[domain=-4:4, samples=100, axis lines=left, ytick=\empty]
+                \addplot[name path=f, thick, black] {exp(-x^2/2)};
+                \path[name path=axis] (axis cs:-4,0) -- (axis cs:4,0);
+                \addplot[fill=green!30] fill between[of=f and axis, soft clip={domain=-4:2}];
+                \draw[thick, red] (axis cs:2,0) -- (axis cs:2,0.5) node[above] {$t$};
+            \end{axis}
+        \end{tikzpicture}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Quick Check}
+    \centering
+    \Large \textcolor{highlight}{Quick Check: Distributions}
+\end{frame}
+
+\begin{frame}{Quiz Q1: Poisson Probability}
+    \textbf{Q1:} A call center receives an average of $\lambda = 3$ calls per minute (Poisson). What is the probability of receiving exactly 0 calls in a minute?
+    
+    \vspace{0.3cm}
+    A) 0 \quad B) $e^{-3}$ \quad C) $3e^{-3}$ \quad D) 0.5
+    
+    \pause
+    \vspace{0.3cm}
+    \textbf{Answer: B) $e^{-3}$}
+    $$P(X=0) = \frac{e^{-3} \cdot 3^0}{0!} = e^{-3}$$
+\end{frame}
+
+\begin{frame}{Quiz Q2: Identify the Distribution}
+    \textbf{Q2:} We perform 5 independent trials. Each trial has a success probability of 0.2. Which distribution models the number of successes?
+    
+    \vspace{0.3cm}
+    A) Bernoulli(0.2) \\
+    B) Poisson(5) \\
+    C) Binomial(5, 0.2) \\
+    D) Uniform
+    
+    \pause
+    \vspace{0.3cm}
+    \textbf{Answer: C) Binomial(5, 0.2)}
+    Because we are counting successes in a fixed number ($n=5$) of independent trials.
+\end{frame}
+
+\begin{frame}{Quiz Q3: Normal Tail Probability}
+    \textbf{Q3:} For a Normal distribution, what is the probability of being more than 3 standard deviations away from the mean (in either direction)?
+    
+    \vspace{0.3cm}
+    A) 5\% \quad B) 1\% \quad C) 0.3\% \quad D) 0.0\%
+    
+    \pause
+    \vspace{0.3cm}
+    \textbf{Answer: C) 0.3\%}
+    $99.7\%$ is inside, so $100 - 99.7 = 0.3\%$ is outside.
+\end{frame}
+
+% =========================================================================
+% CLOSING
+% =========================================================================
+\begin{frame}{Summary}
+    \begin{itemize}
+        \item \textbf{Random Variables} map real-world uncertainty to numbers --- \textbf{discrete} (countable jumps) or \textbf{continuous} (a smooth interval).
+        \item \textbf{PMF} gives the probability of an exact value (discrete); \textbf{PDF} gives density, where \textbf{area} is probability (continuous). Both have a \textbf{CDF}: the running total $P(X \le x)$.
+        \item \textbf{Expectation} is the center; \textbf{Variance} is the spread --- computed by a sum for discrete $X$, an integral for continuous $X$, using exactly the same properties either way.
+        \item \textbf{Key Discrete Distributions:} Uniform, Bernoulli (1 trial), Binomial ($n$ trials), Poisson (rates/queues).
+        \item \textbf{Key Continuous Distributions:} Uniform, Exponential (memoryless waiting times), Normal (the bell curve, central to statistics).
+        \item \textbf{68-95-99.7 Rule:} Quick estimation for Normally distributed data, and the basis of Z-score anomaly detection.
+    \end{itemize}
+
+    \vspace{0.5cm}
+    \centering
+    \Large \textbf{Thank You!}
+\end{frame}
+
+\end{document}
