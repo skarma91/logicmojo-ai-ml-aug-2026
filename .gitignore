@@ -139,3 +139,4 @@ dmypy.json
 *.pptx
 *.html
 *.tex
+*_deck.pdf
