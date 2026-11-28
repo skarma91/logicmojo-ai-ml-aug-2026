@@ -140,3 +140,4 @@ dmypy.json
 *.html
 *.tex
 *_deck.pdf
+*catboost_info/
